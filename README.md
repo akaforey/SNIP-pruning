@@ -1,3 +1,6 @@
+# Attribution
+This is a fork of gahaalt/SNIP-pruning that I've slightly modified for my own purposes.
+
 # SNIP-pruning
 
 Report from ICLR Reproducibility Challenge.
