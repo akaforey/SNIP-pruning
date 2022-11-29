@@ -16,7 +16,7 @@ class NN:
         self.optim = torch.optim.SGD(params=model.parameters(), lr=0.1)
         self.scheduler = torch.optim.lr_scheduler.ExponentialLR(self.optim, gamma=0.99)
     
-    def fit(self, data_loader, loss, silent=False, s_report=100, v_report=1, max_epochs=float('inf'), loop_operation=[]):
+    def fit(self, data_loader, loss, silent=False, s_report=1, v_report=1, max_epochs=float('inf'), loop_operation=[]):
         try:
             if not silent:
                 print("TRAINING:\n{:<10} | {:<10} | {:<12} - {}\n".format\
@@ -31,11 +31,14 @@ class NN:
             while True:
                 if not self.epoch % v_report:
                     res = self.evaluate(data_loader['eval'], eval_length, result, silent)
-                    history['eval']['e'].append(float(res)); history['eval']['i'].append(i)
+                    history['eval']['e'].append(float(res))
+                    history['eval']['i'].append(i)
                     
                 self.epoch+=1
                 self.model.train()
                 for x, y in data_loader['train']:
+                    x.to(self.device)
+                    y.to(self.device)
                     self.optim.zero_grad()
                     x = self.model.forward(x)
                     L = loss(x, y)
@@ -50,7 +53,8 @@ class NN:
                            
                     if not i%s_report:
                         history['train']['e'].append(float(100-100*result))
-                        history['train']['l'].append(float(L)); history['train']['i'].append(i)
+                        history['train']['l'].append(float(L))
+                        history['train']['i'].append(i)
                         if not silent: self.report(i, L, result)
                 
                 self.scheduler.step()       
@@ -61,7 +65,8 @@ class NN:
             pass
         
         res = self.evaluate(data_loader['eval'], eval_length, result, silent)
-        history['eval']['e'].append(float(res)); history['eval']['i'].append(i)
+        history['eval']['e'].append(float(res))
+        history['eval']['i'].append(i)
         if not silent:
             self.draw_history(history)
         return history
@@ -72,10 +77,13 @@ class NN:
     def evaluate(self, data_loader, eval_length, train_error, silent=False):
         self.model.eval()
         with torch.no_grad():
-            result = torch.tensor(0.)
+            result = torch.tensor(0.).to(self.device)
             for x, y in data_loader:
+                x.to(self.device)
+                y.to(self.device)
                 x = self.model.forward(x)
                 predicts = torch.argmax(x, dim=-1)
+                # predicts.to(self.device)
                 result += torch.sum(y==predicts)
         if not silent:
             print( "Epoch {:>4} | time {:0<5.3} | lr {:0<7.4} | tr {:>7.3f}% | eval {:>6.3f}% - {} mis".format( self.epoch,
@@ -106,3 +114,5 @@ class NN:
         plt.plot(history['train']['i'][1:], history['train']['e'][1:], label='training')
         plt.xlabel('iterations'); plt.ylabel('errors');
         plt.grid(True, linewidth=0.2); plt.legend()
+        plt.show()
+        plt.savefig('history.png')

@@ -9,6 +9,9 @@ class Pruner:
         self.device = device
         self.loader = loader
         self.model = model
+
+        if torch.cuda.is_available():
+          self.model.to(self.device)
         
         self.weights = list(model.parameters())
         self.indicators = [torch.ones_like(layer) for layer in model.parameters()]
@@ -29,7 +32,9 @@ class Pruner:
         grads = [torch.zeros_like(w) for w in self.weights]
         
         for x, y in self.loader:
-            x = self.model.forward(x)
+            x.to(self.device)
+            y.to(self.device)
+            x = self.model.forward(x.to(self.device))
             L = torch.nn.CrossEntropyLoss()(x, y)
             grads = [g.abs()+ag.abs() for g, ag in zip(grads, torch.autograd.grad(L, self.weights))]
             mini_batch+=1

@@ -3,7 +3,8 @@ from torchvision import *
 import numpy as np
 import torch
 
-DEVICE = 'cpu'
+# DEVICE = 'cpu'
+DEVICE = 'cuda'
 
 data = datasets.MNIST('Data', download=True)
 mnist_full_x = data.data
