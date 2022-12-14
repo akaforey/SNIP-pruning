@@ -7,6 +7,7 @@ import torch
 DEVICE = 'cuda'
 
 data = datasets.MNIST('Data', download=True)
+# data = datasets.CIFAR10('CIFAR', download=True)
 mnist_full_x = data.data
 mnist_full_y = data.targets
 

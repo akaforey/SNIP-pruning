@@ -56,7 +56,7 @@ def LeNet5(init=None):
 
 def vgg16():
     vgg = models.vgg16_bn()
-    vgg.features[0] = torch.nn.Conv2d(1, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    vgg.features[0] = torch.nn.Conv2d(3, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
     vgg.classifier = torch.nn.Sequential(
         torch.nn.Linear(512, 300),
         torch.nn.ReLU(),

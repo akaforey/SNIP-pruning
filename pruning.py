@@ -34,7 +34,7 @@ class Pruner:
         for x, y in self.loader:
             x.to(self.device)
             y.to(self.device)
-            x = self.model.forward(x.to(self.device))
+            x = self.model.forward(x)
             L = torch.nn.CrossEntropyLoss()(x, y)
             grads = [g.abs()+ag.abs() for g, ag in zip(grads, torch.autograd.grad(L, self.weights))]
             mini_batch+=1

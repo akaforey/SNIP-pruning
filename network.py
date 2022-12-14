@@ -5,10 +5,17 @@ import numpy as np
 import torch
 
 
+def init_weights(m):
+    if isinstance(m, torch.nn.Linear) or isinstance(m, torch.nn.Conv2d):
+        torch.nn.init.xavier_uniform_(m.weight)
+        # m.bias.data.fill_(0.01)
+
+
 class NN:
     def __init__(self, model, device): # nn = NN(model, prepr, 'cpu')
         super().__init__()
         self.model = model.to(device)
+        self.model.apply(init_weights)
         self.device = device
         self.epoch = 0
         
@@ -89,6 +96,7 @@ class NN:
             print( "Epoch {:>4} | time {:0<5.3} | lr {:0<7.4} | tr {:>7.3f}% | eval {:>6.3f}% - {} mis".format( self.epoch,
                     time.time()-self.stime, self.optim.param_groups[0]['lr'],
                     100-100*train_error, 100-100*result/eval_length, int(eval_length-result)))
+            print("Accuracy   | {:>6.3f}%".format(100*result/eval_length))
         self.stime = time.time()
         return 100 - 100*result/eval_length
         
@@ -115,4 +123,4 @@ class NN:
         plt.xlabel('iterations'); plt.ylabel('errors');
         plt.grid(True, linewidth=0.2); plt.legend()
         plt.show()
-        plt.savefig('history.png')
+        plt.savefig('history.png', transparent=True)
